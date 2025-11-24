@@ -1,4 +1,3 @@
-// file: internal/service/mal_service.go
 package service
 
 import (
@@ -11,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type MalServiceInterface interface {
@@ -46,7 +47,12 @@ func (s *MalService) doGet(apiURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Warning: failed to close response body: %v", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)

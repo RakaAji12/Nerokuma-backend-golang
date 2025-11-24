@@ -16,7 +16,6 @@ type Config struct {
 }
 
 func Load() *Config {
-	// default values
 	cfg := &Config{
 		MalClientID:        os.Getenv("MAL_CLIENT_ID"),
 		Port:               getEnv("PORT", "8080"),

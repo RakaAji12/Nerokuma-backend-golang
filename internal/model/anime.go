@@ -1,4 +1,3 @@
-// file: internal/model/anime.go
 package model
 
 import (
@@ -45,14 +44,12 @@ func (a *Anime) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// AnimeSearchResponse adalah model untuk respons pencarian dari MAL API.
 type AnimeSearchResponse struct {
 	Data []struct {
 		Node Anime `json:"node"`
 	} `json:"data"`
 }
 
-// AnimeTrendingResponse adalah model untuk respons trending/ranking dari MAL API.
 type AnimeTrendingResponse struct {
 	Data []struct {
 		Node Anime `json:"node"`

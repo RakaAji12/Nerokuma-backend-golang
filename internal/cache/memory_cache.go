@@ -11,20 +11,17 @@ type InMemoryCacheItem struct {
 	Expiration time.Time
 }
 
-// MemoryCache adalah implementasi cache di memori.
 type MemoryCache struct {
 	mu   sync.RWMutex
 	data map[string]InMemoryCacheItem
 }
 
-// NewMemoryCache membuat instance baru dari MemoryCache.
 func NewMemoryCache() *MemoryCache {
 	return &MemoryCache{
 		data: make(map[string]InMemoryCacheItem),
 	}
 }
 
-// Set menyimpan nilai ke dalam cache memori.
 func (c *MemoryCache) Set(key string, value interface{}, ttl time.Duration) error {
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -40,7 +37,6 @@ func (c *MemoryCache) Set(key string, value interface{}, ttl time.Duration) erro
 	return nil
 }
 
-// Get mengambil nilai dari cache memori.
 func (c *MemoryCache) Get(key string, dest interface{}) (bool, error) {
 	c.mu.RLock()
 	item, ok := c.data[key]

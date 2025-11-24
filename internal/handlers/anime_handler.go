@@ -1,4 +1,3 @@
-// file: internal/handlers/anime_handler.go
 package handlers
 
 import (

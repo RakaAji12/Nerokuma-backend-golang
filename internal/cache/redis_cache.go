@@ -8,13 +8,11 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// RedisCache adalah implementasi cache menggunakan Redis.
 type RedisCache struct {
 	client *redis.Client
 	ctx    context.Context
 }
 
-// NewRedisCache membuat instance baru dari RedisCache.
 func NewRedisCache(client *redis.Client) *RedisCache {
 	return &RedisCache{
 		client: client,
@@ -22,7 +20,6 @@ func NewRedisCache(client *redis.Client) *RedisCache {
 	}
 }
 
-// Set menyimpan nilai ke dalam Redis.
 func (c *RedisCache) Set(key string, value interface{}, ttl time.Duration) error {
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -31,7 +28,6 @@ func (c *RedisCache) Set(key string, value interface{}, ttl time.Duration) error
 	return c.client.Set(c.ctx, key, b, ttl).Err()
 }
 
-// Get mengambil nilai dari Redis.
 func (c *RedisCache) Get(key string, dest interface{}) (bool, error) {
 	r, err := c.client.Get(c.ctx, key).Bytes()
 	if err == redis.Nil {
