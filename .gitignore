@@ -1,0 +1,17 @@
+# Binaries
+nerokuma-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Mac
+.DS_Store
+
+# Env
+.env
+
+# Editor
+.idea
+.vscode

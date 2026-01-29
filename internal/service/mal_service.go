@@ -18,6 +18,8 @@ type MalServiceInterface interface {
 	Search(q string, limit int) (*model.AnimeSearchResponse, error)
 	GetDetail(id string) (*model.Anime, error)
 	GetTrending(limit int) (*model.AnimeTrendingResponse, error)
+	GetSeasonal(year int, season string, limit int) (*model.AnimeSearchResponse, error)
+	GetRanking(rankingType string, limit int) (*model.AnimeTrendingResponse, error)
 }
 
 type MalService struct {
@@ -102,14 +104,39 @@ func (s *MalService) GetDetail(id string) (*model.Anime, error) {
 	return &a, nil
 }
 
+// Deprecated: API changed to generalized GetRanking
 func (s *MalService) GetTrending(limit int) (*model.AnimeTrendingResponse, error) {
-	cacheKey := fmt.Sprintf("trending:%d", limit)
+	return s.GetRanking("all", limit)
+}
+
+func (s *MalService) GetRanking(rankingType string, limit int) (*model.AnimeTrendingResponse, error) {
+	cacheKey := fmt.Sprintf("ranking:%s:%d", rankingType, limit)
 	var resp model.AnimeTrendingResponse
 	if found, _ := s.cache.Get(cacheKey, &resp); found {
 		return &resp, nil
 	}
 
-	apiURL := fmt.Sprintf("https://api.myanimelist.net/v2/anime/ranking?ranking_type=all&limit=%d&fields=id,title,main_picture,mean,synopsis,genres", limit)
+	apiURL := fmt.Sprintf("https://api.myanimelist.net/v2/anime/ranking?ranking_type=%s&limit=%d&fields=id,title,main_picture,mean,synopsis,genres", rankingType, limit)
+	b, err := s.doGet(apiURL)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &resp); err != nil {
+		return nil, err
+	}
+	_ = s.cache.Set(cacheKey, resp, s.cacheTTL)
+	return &resp, nil
+}
+
+func (s *MalService) GetSeasonal(year int, season string, limit int) (*model.AnimeSearchResponse, error) {
+	cacheKey := fmt.Sprintf("seasonal:%d:%s:%d", year, season, limit)
+	var resp model.AnimeSearchResponse
+	if found, _ := s.cache.Get(cacheKey, &resp); found {
+		return &resp, nil
+	}
+
+	apiURL := fmt.Sprintf("https://api.myanimelist.net/v2/anime/season/%d/%s?limit=%d&fields=id,title,main_picture,mean,synopsis,genres", year, season, limit)
 	b, err := s.doGet(apiURL)
 	if err != nil {
 		return nil, err

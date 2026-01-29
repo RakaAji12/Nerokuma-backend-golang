@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 
 	"nerokuma-api/internal/cache"
 	"nerokuma-api/internal/config"
@@ -50,11 +51,22 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/anime/search", animeHandler.SearchAnime).Methods("GET")
 	api.HandleFunc("/anime/trending", animeHandler.GetTrending).Methods("GET")
+	api.HandleFunc("/anime/season/{year}/{season}", animeHandler.GetSeasonal).Methods("GET")
 	api.HandleFunc("/anime/{id}", animeHandler.GetAnimeDetail).Methods("GET")
+
+	// Setup CORS
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins for dev
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	handler := corsMiddleware.Handler(r)
 
 	addr := ":" + cfg.Port
 	log.Printf("Server starting on %s\n", addr)
-	if err := http.ListenAndServe(addr, r); err != nil {
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatalf("Could not start server: %s\n", err)
 	}
 }

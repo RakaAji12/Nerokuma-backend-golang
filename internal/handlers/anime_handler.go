@@ -69,11 +69,34 @@ func (h *AnimeHandler) GetAnimeDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AnimeHandler) GetTrending(w http.ResponseWriter, r *http.Request) {
-	limit := h.getLimitFromQuery(r)
-	result, err := h.malSvc.GetTrending(limit)
+	rankingType := r.URL.Query().Get("type")
+	if rankingType == "" {
+		rankingType = "all"
+	}
+
+	resp, err := h.malSvc.GetRanking(rankingType, 50)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	h.writeJSON(w, http.StatusOK, result)
+	h.writeJSON(w, http.StatusOK, resp)
+}
+
+func (h *AnimeHandler) GetSeasonal(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	yearStr := vars["year"]
+	season := vars["season"]
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		http.Error(w, "Invalid year", http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.malSvc.GetSeasonal(year, season, 50)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	h.writeJSON(w, http.StatusOK, resp)
 }

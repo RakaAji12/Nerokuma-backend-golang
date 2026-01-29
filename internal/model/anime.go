@@ -12,7 +12,7 @@ type Genre struct {
 type Anime struct {
 	ID       int     `json:"id"`
 	Title    string  `json:"title"`
-	ImageURL string  `json:"-"`
+	ImageURL string  `json:"image_url"`
 	Score    float64 `json:"mean"`
 	Synopsis string  `json:"synopsis"`
 	Genres   []Genre `json:"genres"`
